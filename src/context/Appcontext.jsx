@@ -4,8 +4,10 @@ import axios from "axios";
 
 export const ApiContext = createContext();
 
-// Allow configuring the API URL via Vite env (VITE_API_URL). Fallback to localhost.
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/promptvault"
+// Allow configuring the API URL via Vite env (VITE_API_URL).
+// Default to the Render deployment URL you mentioned. To override for local dev,
+// set VITE_API_URL in an .env file (or leave unset to use this default).
+const BASE_URL = import.meta.env.VITE_API_URL || "https://promptbackend-rw73.onrender.com/promptvault"
 
 const api = axios.create({
   baseURL: BASE_URL,
