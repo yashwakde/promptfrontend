@@ -8,6 +8,7 @@ export const ApiContext = createContext();
 // Default to the Render deployment URL you mentioned. To override for local dev,
 // set VITE_API_URL in an .env file (or leave unset to use this default).
 const BASE_URL = import.meta.env.VITE_API_URL || "https://promptbackend-rw73.onrender.com/promptvault"
+console.log("[PromptVault] API BASE_URL:", BASE_URL)
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -92,6 +93,7 @@ export const ApiProvider = ({ children }) => {
   const login = async (data) => {
     try {
       const res = await api.post("/user/login", data);
+      console.log("[PromptVault] Login API response:", res)
       const payload = res.data
       // payload may contain { token, user } or user directly
       const token = payload?.token || payload?.accessToken || payload?.data?.token
@@ -104,6 +106,7 @@ export const ApiProvider = ({ children }) => {
       setUser(userObj || null)
       return payload;
     } catch (error) {
+      console.error("[PromptVault] Login API error:", error, error?.response)
       throw error.response?.data || error.message;
     }
   };
