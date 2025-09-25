@@ -4,8 +4,11 @@ import axios from "axios";
 
 export const ApiContext = createContext();
 
+// Allow configuring the API URL via Vite env (VITE_API_URL). Fallback to localhost.
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/promptvault"
+
 const api = axios.create({
-  baseURL: "http://localhost:3000/promptvault",
+  baseURL: BASE_URL,
   withCredentials: true, // if your backend uses cookies/sessions
   headers: { 'Content-Type': 'application/json' },
 });
