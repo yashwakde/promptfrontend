@@ -1,23 +1,30 @@
 import React, { useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiContext } from '../context/Appcontext.jsx'
+import { toast } from 'react-toastify'
 
 const CreateOrRegisterButton = () => {
   const { user } = useContext(ApiContext)
   const navigate = useNavigate()
-
   const onClick = (e) => {
     e.preventDefault()
     if (user) navigate('/create')
     else navigate('/register')
   }
-
   return (
     <button onClick={onClick} className="px-5 py-3 rounded-full bg-white/10">Create</button>
   )
 }
 
 const Home = () => {
+  // Demo/test: show a toast on mount to confirm backend is connected
+  React.useEffect(() => {
+    fetch('/').then(() => {
+      // If backend is up, do nothing
+    }).catch(() => {
+      toast.error('Backend not reachable!')
+    })
+  }, [])
   return (
     <div className="min-h-screen flex flex-col px-4 sm:px-6 lg:px-8">
       {/* HERO */}
