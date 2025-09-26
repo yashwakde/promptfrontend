@@ -26,6 +26,7 @@ const Register = () => {
     try {
       const payload = { username: username.trim(), email: email.trim(), password, phone: phone.trim() }
       const res = await register(payload)
+      // Only store pending registration info, do NOT set user or token here
       try { localStorage.setItem('pendingRegistration', JSON.stringify(res)) } catch (e) {}
       localStorage.setItem('pendingEmail', email.trim())
       setUsername(''); setEmail(''); setPassword(''); setPhone('');
