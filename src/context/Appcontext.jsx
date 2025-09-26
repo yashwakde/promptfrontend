@@ -25,7 +25,16 @@ api.interceptors.request.use((config) => {
 });
 
 export const ApiProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // Restore user from localStorage on first load
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem("currentUser");
+      if (raw) return JSON.parse(raw);
+      return null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   // --- Auth functions ---
@@ -80,6 +89,7 @@ export const ApiProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
+  
   };
 
   // --- Prompt functions ---
@@ -107,9 +117,14 @@ export const ApiProvider = ({ children }) => {
     return [];
   };
 
-  // Fetch profile on load
+  // Fetch profile on load, but only if token exists
   useEffect(() => {
-    fetchProfile().catch((err) => console.error("[ApiContext] fetchProfile failed:", err));
+    const token = localStorage.getItem("pv_token");
+    if (token) {
+      fetchProfile().catch((err) => console.error("[ApiContext] fetchProfile failed:", err));
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   return (
