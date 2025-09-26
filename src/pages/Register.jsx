@@ -26,6 +26,14 @@ const Register = () => {
     try {
       const payload = { username: username.trim(), email: email.trim(), password, phone: phone.trim() }
       const res = await register(payload)
+      // If backend returns error shape, handle it
+      if (res && (res.error || res.status === 'error')) {
+        const msg = res.error || res.message || 'Registration failed.'
+        setError(msg)
+        toast.error(msg)
+        setLoading(false)
+        return
+      }
       // Only store pending registration info, do NOT set user or token here
       try { localStorage.setItem('pendingRegistration', JSON.stringify(res)) } catch (e) {}
       localStorage.setItem('pendingEmail', email.trim())
@@ -33,7 +41,15 @@ const Register = () => {
       toast.success('Registration successful! Please verify your email.')
       navigate('/verify')
     } catch (err) {
-      const msg = (err && (err.message || err.error || err.msg)) || JSON.stringify(err)
+      // If backend returns 400, show backend error message
+      let msg = 'Registration failed.'
+      if (err?.response && err.response.data) {
+        msg = err.response.data.error || err.response.data.message || JSON.stringify(err.response.data)
+      } else if (err && (err.message || err.error || err.msg)) {
+        msg = err.message || err.error || err.msg
+      } else {
+        msg = JSON.stringify(err)
+      }
       setError(msg)
       toast.error(msg)
     } finally {
