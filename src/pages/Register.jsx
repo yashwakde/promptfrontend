@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ApiContext } from '../context/Appcontext.jsx'
+import { toast } from 'react-toastify'
 
 const Register = () => {
   const [username, setUsername] = useState('')
@@ -8,6 +9,7 @@ const Register = () => {
   const [password, setPassword] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const { register } = useContext(ApiContext)
@@ -17,24 +19,24 @@ const Register = () => {
     setError('')
     if (!username.trim() || !email.trim() || !password.trim()) {
       setError('Please fill username, email and password.')
+      toast.error('Please fill username, email and password.')
       return
     }
-
+    setLoading(true)
     try {
-      // Call backend register endpoint via ApiContext
       const payload = { username: username.trim(), email: email.trim(), password, phone: phone.trim() }
       const res = await register(payload)
-
-      // If the backend responds OK, navigate to verify page.
-      // Store pending email to prefill verify form (safe: only email)
-  // store pending registration response so Verify page can display/prefill
-  try { localStorage.setItem('pendingRegistration', JSON.stringify(res)) } catch (e) {}
-  localStorage.setItem('pendingEmail', email.trim())
+      try { localStorage.setItem('pendingRegistration', JSON.stringify(res)) } catch (e) {}
+      localStorage.setItem('pendingEmail', email.trim())
+      setUsername(''); setEmail(''); setPassword(''); setPhone('');
+      toast.success('Registration successful! Please verify your email.')
       navigate('/verify')
     } catch (err) {
-      // err may be a string or object from ApiContext
       const msg = (err && (err.message || err.error || err.msg)) || JSON.stringify(err)
       setError(msg)
+      toast.error(msg)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -78,7 +80,7 @@ const Register = () => {
                 <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone number" className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-500" />
 
                 <div className="flex gap-3 mt-2">
-                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95">Verify</button>
+                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95" disabled={loading}>{loading ? 'Registering...' : 'Verify'}</button>
                   <button type="button" onClick={() => { setUsername(''); setEmail(''); setPassword(''); setPhone(''); setError('') }} className="px-4 py-2 rounded-full bg-gray-700">Clear</button>
                 </div>
               </form>

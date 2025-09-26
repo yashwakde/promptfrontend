@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { ApiContext } from '../context/Appcontext.jsx'
 import { jsPDF } from 'jspdf'
+import { toast } from 'react-toastify'
 
 const PromptCard = ({ prompt }) => (
   <article className="glass p-4 rounded-lg shadow-sm hover:shadow-md transition">
@@ -12,7 +13,7 @@ const PromptCard = ({ prompt }) => (
       <div className="ml-4 text-right">
         <div className="text-xs text-gray-400 mb-2">{new Date(prompt.createdAt || prompt.created || Date.now()).toLocaleDateString()}</div>
         <div className="flex flex-col items-end gap-2">
-          <button onClick={() => navigator.clipboard.writeText(prompt.description)} className="px-3 py-1 rounded bg-yellow-400 text-black text-sm">Copy</button>
+          <button onClick={() => {navigator.clipboard.writeText(prompt.description); toast.success('Copied!')}} className="px-3 py-1 rounded bg-yellow-400 text-black text-sm">Copy</button>
           <button onClick={() => downloadPromptPdf(prompt)} className="px-3 py-1 rounded bg-blue-500 text-white text-sm">Download PDF</button>
         </div>
       </div>
@@ -26,25 +27,22 @@ function downloadPromptPdf(prompt) {
     const margin = 40
     const pageWidth = doc.internal.pageSize.getWidth()
     const usableWidth = pageWidth - margin * 2
-
     doc.setFontSize(18)
     doc.text(prompt.title || 'Prompt', margin, 80)
-
     doc.setFontSize(12)
     const text = prompt.description || ''
     const lines = doc.splitTextToSize(text, usableWidth)
     doc.text(lines, margin, 110)
-
     if (prompt.tag) {
       doc.setFontSize(10)
       doc.text(`Tag: ${prompt.tag}`, margin, 110 + lines.length * 14 + 20)
     }
-
     const safeTitle = (prompt.title || 'prompt').replace(/[^a-z0-9\-_ ]/gi, '').slice(0, 50)
     doc.save(`${safeTitle || 'prompt'}.pdf`)
+    toast.success('PDF downloaded!')
   } catch (err) {
     console.error('Failed to generate PDF', err)
-    alert('Failed to generate PDF. See console for details.')
+    toast.error('Failed to generate PDF. See console for details.')
   }
 }
 

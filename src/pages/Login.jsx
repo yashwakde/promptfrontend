@@ -1,11 +1,13 @@
 import React, { useState, useContext } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ApiContext } from '../context/Appcontext.jsx'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const { login } = useContext(ApiContext)
@@ -14,23 +16,25 @@ const Login = () => {
   const submit = async (e) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     try {
       const payload = { email: email.trim(), password }
       const res = await login(payload)
-
-      // ensure token/user are persisted by context.login, but tolerate server shapes
-  const token = res?.token || res?.accessToken || res?.data?.token
-  let user = res?.user || res?.data?.user || res
-  user = user?.user || user
-  try { if (token) localStorage.setItem('pv_token', token) } catch(e){}
-  try { if (user) localStorage.setItem('currentUser', JSON.stringify(user)) } catch(e){}
-
-      // refresh profile in context and redirect home
+      const token = res?.token || res?.accessToken || res?.data?.token
+      let user = res?.user || res?.data?.user || res
+      user = user?.user || user
+      try { if (token) localStorage.setItem('pv_token', token) } catch(e){}
+      try { if (user) localStorage.setItem('currentUser', JSON.stringify(user)) } catch(e){}
       try { await fetchProfile() } catch (e) { /* ignore - fetchProfile logs */ }
+      setEmail(''); setPassword('');
+      toast.success('Login successful!')
       navigate('/')
     } catch (err) {
       const msg = (err && (err.message || err.error || err.msg)) || JSON.stringify(err)
       setError(msg)
+      toast.error(msg)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -72,7 +76,7 @@ const Login = () => {
                 <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" type="password" className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-900" />
 
                 <div className="flex gap-3 mt-2">
-                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95">Login</button>
+                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
                 </div>
               </form>
 

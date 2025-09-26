@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiContext } from '../context/Appcontext.jsx'
+import { toast } from 'react-toastify'
 
 const Verify = () => {
   const [email, setEmail] = useState('')
@@ -34,26 +35,21 @@ const Verify = () => {
     try {
       const payload = { email: email.trim(), code: code.trim() }
       const res = await verifyEmail(payload)
-
-      // expected server to return token and user data
       const token = res.token || res.accessToken || res.data?.token
       let user = res.user || res.data?.user || res
       user = user?.user || user
       if (token) localStorage.setItem('pv_token', token)
       if (user) localStorage.setItem('currentUser', JSON.stringify(user))
-
-      // cleanup local pending keys
       localStorage.removeItem('pendingRegistration')
       localStorage.removeItem('pendingEmail')
-
-      // refresh context profile so Navbar/Profile update
       try { await fetchProfile() } catch (e) {}
-
-      // navigate to home
+      setEmail(''); setCode('');
+      toast.success('Verification successful! Please login.')
       navigate('/login')
     } catch (err) {
       const msg = (err && (err.message || err.error || err.msg)) || JSON.stringify(err)
       setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }

@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiContext } from '../context/Appcontext.jsx'
 import { animate } from 'motion'
+import { toast } from 'react-toastify'
 
 const Create = () => {
   const { createprompt, user } = useContext(ApiContext)
@@ -20,28 +21,28 @@ const Create = () => {
     setError('')
     if (!title.trim() || !description.trim()) {
       setError('Please provide title and description')
+      toast.error('Please provide title and description')
       return
     }
+    setLoading(true)
     try {
-      setLoading(true)
-      // show overlay
       setShowOverlay(true)
       const start = Date.now()
       const payload = { title: title.trim(), description: description.trim(), tag: tag.trim(), author: user?._id || user?.id }
       await createprompt(payload)
-      // ensure overlay shows for at least 2200ms for perceived AI generation
       const elapsed = Date.now() - start
       const min = 2200
       const wait = Math.max(0, min - elapsed)
       if (wait > 0) await new Promise(r => setTimeout(r, wait))
-      // animate overlay out
       if (overlayRef.current) animate(overlayRef.current, { opacity: [1, 0], transform: ['scale(1)', 'scale(0.98)'] }, { duration: 300 })
+      setTitle(''); setDescription(''); setTag('');
+      toast.success('Prompt created successfully!')
       navigate('/myprompts')
     } catch (err) {
       setError((err && (err.message || err.error)) || String(err))
+      toast.error((err && (err.message || err.error)) || String(err))
     } finally {
       setLoading(false)
-      // hide overlay after short delay to allow exit animation
       setTimeout(() => setShowOverlay(false), 320)
     }
   }
