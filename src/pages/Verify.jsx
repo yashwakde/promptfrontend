@@ -40,7 +40,9 @@ const Verify = () => {
       user = user?.user || user
       if (token) localStorage.setItem('pv_token', token)
       if (user) localStorage.setItem('currentUser', JSON.stringify(user))
-      localStorage.removeItem('pendingRegistration')
+    localStorage.removeItem('pendingRegistration')
+    toast.success('Verification successful! Please login.')
+    navigate('/login')
       localStorage.removeItem('pendingEmail')
       try { await fetchProfile() } catch (e) {}
       setEmail(''); setCode('');
