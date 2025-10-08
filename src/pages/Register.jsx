@@ -34,12 +34,10 @@ const Register = () => {
         setLoading(false)
         return
       }
-      // Only store pending registration info, do NOT set user or token here
-      try { localStorage.setItem('pendingRegistration', JSON.stringify(res)) } catch (e) {}
-      localStorage.setItem('pendingEmail', email.trim())
+      // registration succeeded -> redirect to home
       setUsername(''); setEmail(''); setPassword(''); setPhone('');
-      toast.success('Registration successful! Please verify your email.')
-      navigate('/verify')
+      toast.success('Registration successful! Redirecting to home...')
+      navigate('/')
     } catch (err) {
       // If backend returns 400, show backend error message
       let msg = 'Registration failed.'
@@ -97,7 +95,7 @@ const Register = () => {
                 <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone number" className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 text-gray-500" />
 
                 <div className="flex gap-3 mt-2">
-                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95" disabled={loading}>{loading ? 'Registering...' : 'Verify'}</button>
+                  <button type="submit" className="accent-yellow px-4 py-2 rounded-full font-semibold hover:brightness-95" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
                   <button type="button" onClick={() => { setUsername(''); setEmail(''); setPassword(''); setPhone(''); setError('') }} className="px-4 py-2 rounded-full bg-gray-700">Clear</button>
                 </div>
               </form>

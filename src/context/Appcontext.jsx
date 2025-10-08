@@ -43,10 +43,6 @@ export const ApiProvider = ({ children }) => {
     return res.data;
   };
 
-  const verifyEmail = async (data) => {
-    const res = await api.post("/user/verify", data);
-    return res.data;
-  };
 
   const login = async (data) => {
     const res = await api.post("/user/login", data);
@@ -133,7 +129,6 @@ export const ApiProvider = ({ children }) => {
         user,
         loading,
         register,
-        verifyEmail,
         login,
         logout,
         fetchProfile,
